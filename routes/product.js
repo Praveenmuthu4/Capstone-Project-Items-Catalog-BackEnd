@@ -12,6 +12,7 @@ const router = express.Router();
 
 router.route("/product").get(getProduct);
 router.route("/product/:id").get(getOneProduct);
+router.route("/cart/product/:id").get(getOneProduct);
 
 router.route("/admin/product/newProduct").post(isAuthenticatedUser, newProduct);
 router
