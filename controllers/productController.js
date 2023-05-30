@@ -21,18 +21,15 @@ exports.getProduct = async (req, res, next) => {
 
   const apiFeatures = new APIFeatures(Product.find(), req.query)
     .search()
-    .filter()
-    .pagination(resPerPage);
+    .filter();
 
   const products = await apiFeatures.query;
 
-  setTimeout(() => {
-    res.status(200).json({
-      success: true,
-      productsCount,
-      products,
-    });
-  }, 2000);
+  res.status(200).json({
+    success: true,
+    productsCount,
+    products,
+  });
 };
 
 exports.getOneProduct = catchAsyncError(async (req, res, next) => {
