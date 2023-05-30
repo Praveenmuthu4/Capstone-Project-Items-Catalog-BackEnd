@@ -13,7 +13,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     email,
     password,
     avatar: {
-      public_id: "avatars/jkdhkijifikfeii",
+      public_id: "avatars/jkdhkijififgkfeii",
       url: "https://w7.pngwing.com/pngs/144/675/png-transparent-rose-red-roses-red-roses-3d-art-flower-arranging-floribunda-color-thumbnail.png",
     },
   });
