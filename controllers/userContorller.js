@@ -160,9 +160,10 @@ exports.logout = catchAsyncError(async (req, res, next) => {
     expires: new Date(Date.now()),
     httpOnly: true,
   });
-  res.status(201).json({
+
+  res.status(200).json({
     success: true,
-    message: "Logged out Successfully",
+    message: "Logged out",
   });
 });
 
