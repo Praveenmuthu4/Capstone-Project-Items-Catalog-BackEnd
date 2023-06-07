@@ -4,8 +4,15 @@ const ErrorHandler = require("../utils/errorHandler");
 const sendToken = require("../utils/jwtToken");
 const sendEmail = require("../utils/sendEmail");
 const crypto = require("crypto");
+const cloudinary = require("cloudinary");
 
 exports.registerUser = catchAsyncError(async (req, res, next) => {
+  const result = await cloudinary.v2.uploader.upload(req.body.avatar, {
+    folder: "avatars",
+    width: 150,
+    crop: "scale",
+  });
+
   const { name, email, password } = req.body;
 
   const user = await User.create({
@@ -13,8 +20,8 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     email,
     password,
     avatar: {
-      public_id: "avatars/jkdhkijifgkfeii",
-      url: "https://w7.pngwing.com/pngs/144/675/png-transparent-rose-red-roses-red-roses-3d-art-flower-arranging-floribunda-color-thumbnail.png",
+      public_id: result.public_id,
+      url: result.secure_url,
     },
   });
 
@@ -144,10 +151,28 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
     email: req.body.email,
   };
 
+  if (req.body.avatar !== "") {
+    const user = await User.findById(req.user.id);
+
+    const image_id = user.avatar.public_id;
+    const res = await cloudinary.v2.uploader.destroy(image_id);
+
+    const result = await cloudinary.v2.uploader.upload(req.body.avatar, {
+      folder: "avatars",
+      width: 150,
+      crop: "scale",
+    });
+
+    newUserData.avatar = {
+      public_id: result.public_id,
+      url: result.secure_url,
+    };
+  }
+
   const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
     new: true,
     runValidators: true,
-    useFindandModify: false,
+    useFindAndModify: false,
   });
 
   res.status(200).json({
@@ -210,13 +235,18 @@ exports.updateUser = catchAsyncError(async (req, res, next) => {
 });
 
 exports.deleteUser = catchAsyncError(async (req, res, next) => {
-  const user = await User.findByIdAndDelete(req.params.id);
+  const user = await User.findById(req.params.id);
 
   if (!user) {
     return next(
-      new ErrorHandler(`User doesn't found with id:${req.params.id}`)
+      new ErrorHandler(`User does not found with id: ${req.params.id}`)
     );
   }
+
+  const image_id = user.avatar.public_id;
+  await cloudinary.v2.uploader.destroy(image_id);
+
+  await user.remove();
 
   res.status(200).json({
     success: true,
