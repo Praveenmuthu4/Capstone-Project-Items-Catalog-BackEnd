@@ -70,7 +70,7 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
   try {
     await sendEmail({
       email: user.email,
-      subject: "Item Catalog Password Recovery",
+      subject: "Shopify Password Recovery",
       message,
     });
 
