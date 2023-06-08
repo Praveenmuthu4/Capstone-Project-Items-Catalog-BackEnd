@@ -61,7 +61,7 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
 
   await user.save({ validateBeforeSave: false });
 
-  const resetUrl = `${req.protocol}://${req.get(
+  const resetUrl = `${process.env.FRONT_END_URL}://${req.get(
     "host"
   )}/api/password/reset/${resetToken}`;
 
