@@ -87,11 +87,9 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
 });
 
 exports.resetPassword = catchAsyncError(async (req, res, next) => {
-  const resetToken = req.params.token;
-
   const resetPasswordToken = crypto
     .createHash("sha256")
-    .update(resetToken)
+    .update(req.params.token)
     .digest("hex");
 
   const user = await User.findOne({
@@ -118,13 +116,7 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
   user.resetPasswordExpire = undefined;
 
   await user.save();
-
-  const token = user.getJwtToken();
-  res.status(200).json({
-    success: true,
-    token,
-    user,
-  });
+  sendToken(user, 200, res);
 });
 
 exports.getUserProfile = catchAsyncError(async (req, res, next) => {
