@@ -86,18 +86,56 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
   }
 });
 
+// exports.resetPassword = catchAsyncError(async (req, res, next) => {
+//   const resetPasswordToken = crypto
+//     .createHash("sha256")
+//     .update(req.params.token)
+//     .digest("hex");
+
+//   const user = await User.findOne({
+//     resetPasswordToken,
+//     resetPasswordExpire: { $gt: Date.now() },
+//   });
+
+//   if (!user) {
+//     return next(
+//       new ErrorHandler(
+//         "Password reset token is invalid or has been expired",
+//         400
+//       )
+//     );
+//   }
+
+//   if (req.body.password !== req.body.confirmPassword) {
+//     return next(new ErrorHandler("Password does not match"), 400);
+//   }
+
+//   user.password = req.body.password;
+
+//   user.resetPasswordToken = undefined;
+//   user.resetPasswordExpire = undefined;
+
+//   await user.save();
+//   sendToken(user, 200, res);
+// });
+
 exports.resetPassword = catchAsyncError(async (req, res, next) => {
   const resetPasswordToken = crypto
     .createHash("sha256")
     .update(req.params.token)
     .digest("hex");
 
+  console.log("Reset Password Token:", resetPasswordToken);
+
   const user = await User.findOne({
     resetPasswordToken,
     resetPasswordExpire: { $gt: Date.now() },
   });
 
+  console.log("User:", user);
+
   if (!user) {
+    console.log("Password reset token is invalid or has been expired");
     return next(
       new ErrorHandler(
         "Password reset token is invalid or has been expired",
@@ -107,8 +145,11 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
   }
 
   if (req.body.password !== req.body.confirmPassword) {
+    console.log("Password does not match");
     return next(new ErrorHandler("Password does not match"), 400);
   }
+
+  console.log("New Password:", req.body.password);
 
   user.password = req.body.password;
 
@@ -116,7 +157,10 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
   user.resetPasswordExpire = undefined;
 
   await user.save();
+  console.log("User saved:", user);
+
   sendToken(user, 200, res);
+  console.log("Token sent:", user);
 });
 
 exports.getUserProfile = catchAsyncError(async (req, res, next) => {
