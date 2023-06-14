@@ -15,7 +15,20 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+  })
+);
+
+app.options("*", cors());
+
+app.use((req, res, next) => {
+  res.on("finish", () => {
+    console.log("Response headers:", res.getHeaders());
+  });
+  next();
+});
 
 app.use("/api", products);
 app.use("/api", user);
